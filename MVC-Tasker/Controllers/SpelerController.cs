@@ -51,7 +51,7 @@ namespace ReversiApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
 
-        public async Task<IActionResult> Create([Bind("Naam,Kleur,SpelId")] SpelerModel speler)
+        public async Task<IActionResult> Create([Bind("Naam")] SpelerModel speler)
         {
             
             if (ModelState.IsValid)
@@ -60,7 +60,7 @@ namespace ReversiApp.Controllers
                 if (!speler.Token.Equals(null)||_context.Spelers.FirstOrDefault(s=>s.Token.Equals(speler.Token))!=null) { 
                     _context.Add(speler);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index)); }
+                    return RedirectToAction("Game","Home"); }
             }
             return View(speler);
         }
