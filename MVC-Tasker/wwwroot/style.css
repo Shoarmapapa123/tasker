@@ -1,0 +1,140 @@
+.fade-in {
+  animation: fadeIn ease 5s;
+  -webkit-animation: fadeIn ease 5s;
+  -moz-animation: fadeIn ease 5s;
+  -o-animation: fadeIn ease 5s;
+  -ms-animation: fadeIn ease 5s; }
+
+.bibber {
+  animation-name: bibber;
+  animation-delay: 2s;
+  animation-fill-mode: forwards;
+  animation-duration: 0.15s;
+  animation-iteration-count: 5; }
+
+.growAndFade {
+  animation-name: growAndFade;
+  animation-duration: 2s; }
+
+@keyframes growAndFade {
+  50% {
+    -webkit-transform: rotate(180deg) scale(2);
+    -ms-transform: rotate(180deg) scale(2);
+    transform: rotate(180deg) scale(2);
+    opacity: 0.25; } }
+
+@keyframes bibber {
+  25% {
+    margin-left: 10px; }
+  75% {
+    margin-right: 10px; } }
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0; }
+  100% {
+    opacity: 1; } }
+
+/*
+@-moz-keyframes fadeIn {
+  0% {
+    opacity:0;
+  }
+  100% {
+    opacity:1;
+  }
+}
+
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity:0;
+  }
+  100% {
+    opacity:1;
+  }
+}
+
+@-o-keyframes fadeIn {
+  0% {
+    opacity:0;
+  }
+  100% {
+    opacity:1;
+  }
+}
+
+@-ms-keyframes fadeIn {
+  0% {
+    opacity:0;
+  }
+  100% {
+    opacity:1;
+  }
+}*/
+.alert {
+  border: 2px black;
+  border-radius: 25px;
+  color: white;
+  padding: 5px; }
+
+.alert--hidden {
+  display: none; }
+
+.alert--success-success {
+  background: green; }
+
+.alert--success-failure {
+  background: red; }
+
+.buttonSection--corner-tr {
+  padding-top: 20px;
+  padding-right: 20px; }
+
+.buttonSection--corner-bl {
+  padding-bottom: 20px;
+  padding-left: 20px; }
+
+.button {
+  font-weight: bold; }
+
+.button--reject {
+  background: gray;
+  color: red;
+  border-color: darkred; }
+
+.button--accept {
+  background: lightgray;
+  color: darkgreen;
+  border-color: lightgreen; }
+
+.board {
+  height: 80vh;
+  width: 80vh;
+  color: transparent;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
+
+.board--tile {
+  color: transparent;
+  border: 2px solid black;
+  font-size: 3rem;
+  text-align: center; }
+
+.fiche {
+  border: 3px solid gray;
+  border-radius: 30px;
+  height: 100%;
+  width: 100%; }
+
+.fiche--black {
+  background-color: silver;
+  background-image: linear-gradient(335deg, #000 23px, transparent 23px), linear-gradient(155deg, #333 23px, transparent 23px), linear-gradient(335deg, #000 23px, transparent 23px), linear-gradient(155deg, #333 23px, transparent 23px);
+  background-size: 58px 58px;
+  background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px; }
+
+.fiche--white {
+  background-color: silver;
+  background-image: linear-gradient(335deg, #fff 19px, transparent 23px), linear-gradient(155deg, #eee 23px, transparent 23px), linear-gradient(335deg, #fff 23px, transparent 23px), linear-gradient(155deg, #eee 23px, transparent 23px);
+  background-size: 58px 58px;
+  background-position: 0px 2px, 4px 35px, 29px 31px, 34px 6px; }

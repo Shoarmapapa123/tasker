@@ -1,0 +1,33 @@
+﻿<link href="~/style.css" rel="stylesheet" type="text/css" />
+@using MVC_Tasker.DAL;
+@using Microsoft.AspNetCore.Identity;
+@inject UserManager<IdentityUser> UserManager
+@inject SpelContext  spelcontext
+@{
+    ViewData["Title"] = "Game";
+}
+@{
+
+    var userId = UserManager.GetUserId(User);
+    var speler = spelcontext.Spelers.FirstOrDefault(s => s.Token.Equals(userId));
+    var redirectString = $"~/Spel/Delete/{speler.SpelId}";
+    var spel = spelcontext.Spellen.Find(speler.SpelId);    
+
+}
+<h1>Game: @spelcontext.Spellen.Find(speler.SpelId).Omschrijving </h1>
+<h6>Jouw kleur: @speler.Kleur</h6>
+<h6 id="opponent"></h6>
+<h6 id="kleuren"></h6>
+<h6 id="winnend"></h6>
+<h6 id="winnaar"></h6>
+<button id="pass" class="btn btn-primary"  style="visibility:hidden">Pass</button>
+<button id="leaveEnd" class="btn btn-primary" style="visibility:hidden">Leave</button>
+
+<div id="gameBoard" class="board">
+
+</div>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+
+<script src="~/js/app.js"></script>
+
+<script>Game.Reversi.init();</script>
