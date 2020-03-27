@@ -68,15 +68,31 @@ namespace MVC_Tasker
             UpdateDatabase(app);
             //SeedData.Initialize(context);
         }
-        private static void UpdateDatabase(IApplicationBuilder app) { 
-            try {
-                using (var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope()) { using (var context = serviceScope.ServiceProvider.GetService<SpelContext>()) 
-                    { context.Database.Migrate(); } 
-                } 
-            } 
-            catch 
-            { Console.WriteLine("Database server not available or database corrupted."); 
-            }           
+        private static void UpdateDatabase(IApplicationBuilder app)
+        {
+            try
+            {
+                using (var serviceScope = app.ApplicationServices
+                    .GetRequiredService<IServiceScopeFactory>()
+                    .CreateScope())
+                {
+                    using (var context = serviceScope.ServiceProvider.GetService<SpelContext>())
+                    {
+                        context.Database.Migrate();
+                    }
+                    using (var context = serviceScope.ServiceProvider.GetService<IdentityContext>())
+                    {
+                        context.Database.Migrate();
+                    }
+                }
+
+            }
+            catch
+            {
+                Console.WriteLine("Database server not available or database corrupted.");
+            }
+
         }
+        
     }
 }
