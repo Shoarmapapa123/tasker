@@ -303,6 +303,39 @@ Game.Reversi = (function(){
                 document.getElementById('opponent').textContent="Tegenstander: "+opp;
             });
         };
+        
+        const convertBoard = function (){            
+            return Game.Data.getBord().then((board)=>{
+                let speelBord=JSON.parse(board);
+            
+            var tiles=[];
+            for(let y=0;y<8;y++){
+               for(let x=0;x<8;x++){
+                   let fiche={Colour:'None'};
+                   //if(speelBord[x][y]=='0'){
+                   //    fiche.Colour='None';
+                   //} else 
+                       if (speelBord[x][y]=='1') {
+                       fiche.ColourWhite=true;
+                   }else if (speelBord[x][y]=='2'){
+                       fiche.ColourBlack=true;
+                   }
+                    tiles.push(fiche);
+               } 
+            }            
+            return tiles;});
+        };
+        
+        const updateBoardHBS = function(){
+            var y = convertBoard().then((x)=>{
+                var grid = document.getElementById('gameBoardHBS');
+                console.log(x.length);
+                var parsed = Game.Template.parseTemplate('board.board',{boardTile : x });
+                $(grid).append(parsed);
+            });
+            
+        };
+        
         const clickTile = async function(x,y){
             await Game.Data.doeZet(x,y).then(()=>{
                 updateBoard();
@@ -450,19 +483,22 @@ Game.Reversi = (function(){
         
         return{
             init:privateInit,
-            showFiche:showFiche
+            showFiche:showFiche,
+            uH:updateBoardHBS,
+            convertBoard:convertBoard
         };
     })();
 /* global Game*/
 Game.Template=function(){
     const getTemplate=function(templateName){
-        return 'spa_templates.templates.templateName';
-    };
-    const parseTemplate=function(templateName,data){
-        var parsedTemplate;
-        var template = getTemplate(templateName);
+        return eval('spa_templates.templates.'+templateName);
         
+    };
+    const parseTemplate= function(templateName,data){
+        var template = getTemplate(templateName);
+        var parsedTemplate= template(data);
         return parsedTemplate;
+        
     };
     return{
         getTemplate:getTemplate,
