@@ -88,11 +88,11 @@ namespace ReversiApp.Controllers
         // POST: Spel/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Omschrijving,Token")] SpelModel spel)
+        public async Task<IActionResult> Create([Bind("Omschrijving")] SpelModel spel)
         {
             if (ModelState.IsValid)
             {
-                if (_context.Spellen.FirstOrDefault(s => s.Token.Equals(spel.Token)) == null)
+                if (_context.Spellen.FirstOrDefault(s => s.Omschrijving.Equals(spel.Omschrijving)) == null)
                 {
                     
                     
