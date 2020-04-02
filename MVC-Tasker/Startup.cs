@@ -33,6 +33,7 @@ namespace MVC_Tasker
             services.AddDbContext<IdentityContext>(options => options.UseSqlServer(Configuration.GetConnectionString("SpelDatabase")));
             services.AddMvc();
             services.AddSignalR();
+            services.AddCors();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -66,6 +67,7 @@ namespace MVC_Tasker
                 endpoints.MapHub<ReversiHub>("/reversiHub");
             });
             UpdateDatabase(app);
+            app.UseCors("AllPolicy");
             //SeedData.Initialize(context);
         }
         private static void UpdateDatabase(IApplicationBuilder app)

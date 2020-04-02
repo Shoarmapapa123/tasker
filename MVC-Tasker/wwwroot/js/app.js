@@ -97,6 +97,27 @@ const Game = (function(url){
     };
 })('/api/url');
 /* global Game */
+Game.Api=(function(){
+    const init = function(){
+        
+    };
+    
+    const getOneAmiibo = async function(){
+        return await Game.Data.getAmiiboJson().then((Amiiboos)=>{
+            var AmiiboosParsed = JSON.parse(Amiiboos);
+            var l = AmiiboosParsed.amiibo.length;
+            var x = Math.floor(Math.random() * l);
+            var AmiiboSelected = AmiiboosParsed.amiibo[x];
+            return AmiiboSelected;
+        }); 
+    };
+    
+    return{
+        init:init,
+        getOneAmiibo:getOneAmiibo
+    };
+})();
+/* global Game */
 Game.Data=(function(){
     let configMap={
         mock: [
@@ -110,6 +131,13 @@ Game.Data=(function(){
     let stateMap={
         environment:'development'
     };
+    
+    const getAmiiboJson = async function(){
+        let response = await fetch('https://www.amiiboapi.com/api/amiibo/');
+        let data = await response.text();
+        return data;
+    };
+    
     let possibleStates=['production','development'];
     const get = function(url){
         if(stateMap.environment==='production'){
@@ -198,7 +226,8 @@ Game.Data=(function(){
         doPass: doPass,
         getFinished: getFinished,
         getWinner: getWinner,
-        getLeave:getLeave
+        getLeave:getLeave,
+        getAmiiboJson:getAmiiboJson
     };
 })();
 /* global Game */
@@ -267,6 +296,7 @@ Game.Reversi = (function(){
             Game.Data.getOpponent().then((opp)=>{
                 document.getElementById('opponent').textContent="Tegenstander: "+opp;
             });
+            updateAmiibo();
             
             //showPassButton();
             //updateKleuren();
@@ -288,6 +318,7 @@ Game.Reversi = (function(){
                         document.getElementById('gameBoard').appendChild(tile);
                     }
                 }
+                initChart(speelBord);
             });
             updateGame();
         };
@@ -300,6 +331,11 @@ Game.Reversi = (function(){
         };
         const updateTegenstander = async function(){
             Game.Data.getOpponent().then((opp)=>{
+                if(opp=='Geen'){
+                    showLeaveButton();
+                }else{
+                    hideLeaveButton();
+                }
                 document.getElementById('opponent').textContent="Tegenstander: "+opp;
             });
         };
@@ -320,7 +356,7 @@ Game.Reversi = (function(){
                    }else if (speelBord[x][y]=='2'){
                        fiche.ColourBlack=true;
                    }
-                    tiles.push(fiche);
+                   tiles.push(fiche);
                } 
             }            
             return tiles;});
@@ -329,20 +365,23 @@ Game.Reversi = (function(){
         const updateBoardHBS = function(){
             var y = convertBoard().then((x)=>{
                 var grid = document.getElementById('gameBoardHBS');
-                console.log(x.length);
                 var parsed = Game.Template.parseTemplate('board.board',{boardTile : x });
-                $(grid).append(parsed);
-            });
+                $(grid).replaceWith(parsed);
+            }); 
             
         };
         
         const clickTile = async function(x,y){
-            await Game.Data.doeZet(x,y).then(()=>{
-                updateBoard();
-            });
-            connection.invoke("SendMessage", "update").catch(function(error){
+            await Game.Data.doeZet(x,y).then((_)=>{
+                if(_=='true'){
+                    updateBoard();
+                    updateAmiibo();
+                    connection.invoke("SendMessage", "update").catch(function(error){
                 return console.error(error.toString());
             });
+                };
+            });
+            
         };
         const updateGame = async function(){
             if(await Game.Data.getFinished().then((r)=>{
@@ -365,7 +404,6 @@ Game.Reversi = (function(){
         const updateBoard = function(){
             Game.Data.getBord().then((board)=>{
                 let speelBord=JSON.parse(board);
-                console.log(speelBord);
                 for(let y=0;y<8;y++){
                     for(let x=0;x<8;x++){                        
                         if(speelBord[x][y]!=0){
@@ -389,6 +427,7 @@ Game.Reversi = (function(){
                         }                        
                     }
                 }
+                updateChart(board);
             });
         };
         
@@ -471,23 +510,118 @@ Game.Reversi = (function(){
                 }
             });
         };
+        const hideLeaveButton=function(){
+            var x = document.getElementById('leaveEnd');
+            x.style.visibility='hidden';
+            x.onclick= function(){
+                console.log("dit kan niet");
+            };
+        };
+        
         const showLeaveButton=function(){
             var x = document.getElementById('leaveEnd');
             x.style.visibility='visible';
             x.onclick= function(){Game.Data.getLeave().then((result)=>{
                     if(result==='true'){
                         window.location.replace("/Home/Game");
+                    }else{
+                        hideLeaveButton();
                     }
             });};
+        };
+        const updateAmiibo=async function(){
+            await Game.Api.getOneAmiibo().then((amiibo)=>{
+                var x = document.getElementById('randomAmiibo');
+                var y = Game.Template.parseTemplate('game.api',{amiibo});
+                $(x).replaceWith(y);
+            });
+        };
+        
+        const initChart = async function(board){
+            Game.Stats.init(board);
+            var cPSection= document.getElementById('chartPiecesSection');
+            var cDSection= document.getElementById('chartDifferencesSection');
+            var stats = Game.Stats.getJSON();
+            var x = Game.Template.parseTemplate('chart.piecesonboard',stats);
+            var y = Game.Template.parseTemplate('chart.difference',stats);
+            $(cPSection).replaceWith(x);
+            $(cDSection).replaceWith(y);
+        };
+        
+        const updateChart=async function(board){
+            let speelBord=JSON.parse(board);
+            Game.Stats.updateValues(speelBord);
+            var cPSection= document.getElementById('chartPiecesSection');
+            var cDSection=document.getElementById('chartDifferencesSection');
+            var stats = Game.Stats.getJSON();
+            var x = Game.Template.parseTemplate('chart.piecesonboard',stats);
+            var y = Game.Template.parseTemplate('chart.difference',stats);
+            $(cPSection).replaceWith(x);
+            $(cDSection).replaceWith(y);
         };
         
         return{
             init:privateInit,
-            showFiche:showFiche,
             uH:updateBoardHBS,
-            convertBoard:convertBoard
+            convertBoard:convertBoard,
+            updateAmiibo:updateAmiibo
         };
     })();
+/* global Game */
+Game.Stats=(function(){
+    
+    let black;
+    let white;
+    let difference;
+    let turns;
+    let turn;
+    
+    const init=function(board){
+        black=[];
+        white=[];
+        difference=[];
+        turn=0;
+    };
+    
+
+    const updateValues = function(board){
+        turn++;
+        var countedBlack=0;
+        var countedWhite=0;
+        for(var x=0;x<8;x++){
+            for(var y=0;y<8;y++){
+                if(board[x][y]=='1'){
+                    countedWhite++;
+                }else if(board[x][y]=='2'){
+                    countedBlack++;
+                }
+            }
+        }
+        turns=[];
+        for(var i=0;i<turn;i++){
+            turns.push(i)
+        }
+        
+        var countedDifference = Math.abs(countedBlack-countedWhite);
+        
+        difference.push(countedDifference);
+        black.push(countedBlack);
+        white.push(countedWhite);
+    };
+    
+    const getJSON = function(){
+        return {black: black,
+                white: white,
+                difference: difference,
+                turns: turns};
+    };
+    
+    return{
+        init:init,
+        updateValues:updateValues,
+        getJSON:getJSON
+    };
+})();
 /* global Game*/
 Game.Template=function(){
     const getTemplate=function(templateName){

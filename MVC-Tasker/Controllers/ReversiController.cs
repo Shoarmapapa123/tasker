@@ -56,10 +56,14 @@ namespace ReversiApp.Controllers
                 _speler.SpelId = null;
                 _context.SaveChanges();
                 return true;
+            } else if (_context.Spelers.Where(s=>s.SpelId.Equals(_spel.SpelId)).Count().Equals(1))
+            {
+                _speler.SpelId = null;
+                _context.SaveChanges();
+                return true;
             }
             return false;
         }
-
         [HttpGet("overwegendeKleur")]
         public ActionResult<Kleur> GetOverwegendeKleur()
         {
